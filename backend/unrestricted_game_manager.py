@@ -31,6 +31,7 @@ class UnrestrictedGameManager:
         :param q_norm: The q-norm used for uniformity calculation (q), greater than or equal to 1.
         :param fairness_weight: Weighting factor for fairness in imbalance calculation (α), greater than 0.
         :param is_recording: Flag to enable or disable recording of the matchmaking process.
+        :param approximate: Flag to use approximate skill window calculation for performance.
         """
         reset_clock()
         self.team_size: int = self.validate_config(team_size, lambda x: 1 <= x <= 5, "team_size", "between 1 and 5")
