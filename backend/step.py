@@ -1,4 +1,5 @@
 from typing import Optional
+
 from sortedcontainers import SortedSet
 
 from backend.snapshots import QueueSnapshot, HeapSnapshot, BaseSnapshot

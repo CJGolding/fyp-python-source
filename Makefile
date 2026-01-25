@@ -34,4 +34,4 @@ run-cli:
 
 .PHONY: run-app
 run-app:
-	streamlit run app.py
+	. .venv/bin/activate && streamlit run app.py

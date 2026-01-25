@@ -12,6 +12,8 @@ class Recorder:
         self.queue_size: RecordedStatistic = []
         self.heap_size: RecordedStatistic = []
         self.max_wait_time: RecordedStatistic = []
+        self.min_priority: RecordedStatistic = []
+        self.min_imbalance: RecordedStatistic = []
         self.__lock: Lock = Lock()
 
     def get_steps(self) -> list[RecordedStep]:
@@ -51,3 +53,6 @@ class Recorder:
             self.heap_size.append(len(step.heap_snapshot.state))
             self.max_wait_time.append(
                 max([player["wait_time"] for player in step.queue_snapshot.state]) if step.queue_snapshot.state else 0)
+            if step.heap_snapshot.state:
+                self.min_priority.append(step.heap_snapshot.state[0].get("priority", 0))
+                self.min_imbalance.append(step.heap_snapshot.state[0]["imbalance"])

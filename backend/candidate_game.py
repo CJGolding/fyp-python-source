@@ -26,16 +26,13 @@ class CandidateGame:
 
     def to_dict(self) -> dict:
         """Convert CandidateGame to dictionary representation for recording."""
-        result: dict = {
+        return {
             "anchor_player_id": self.anchor_player.id,
             "team_x": [player.to_dict() for player in self.team_x],
             "team_y": [player.to_dict() for player in self.team_y],
+            "imbalance": self.imbalance,
+            "priority": self.priority
         }
-        if self.priority is None:
-            result["imbalance"] = self.imbalance
-        else:
-            result["priority"] = self.priority
-        return result
 
     def __lt__(self, other: "CandidateGame") -> bool:
         """Less-than comparison based on priority (g) if available, otherwise imbalance (f)."""

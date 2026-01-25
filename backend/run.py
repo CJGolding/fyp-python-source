@@ -31,6 +31,7 @@ def get_player_insertion_options() -> dict:
         ]
     }
 
+
 def init_matchmaking_system(system_class):
     while True:
         config = {"team_size": int(inquirer.number(
@@ -61,7 +62,7 @@ def init_matchmaking_system(system_class):
                 default=0.1,
                 float_allowed=True
             ).execute())
-        config["is_recording"] : bool = inquirer.confirm(
+        config["is_recording"]: bool = inquirer.confirm(
             message="Enable recording of steps and statistics?",
             default=True
         ).execute()
@@ -74,6 +75,7 @@ def init_matchmaking_system(system_class):
         except ValueError:
             LOG.error("Invalid input parameters. Please try again.")
             continue
+
 
 def start_matchmaking_loop(system):
     while True:
