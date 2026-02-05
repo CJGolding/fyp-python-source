@@ -35,7 +35,7 @@ def mean_skill(game_players: GameTeam) -> float:
 
 def q_uniformity(game_players: GamePlayers, q_norm: float) -> float:
     """
-    Calculate the q-uniformity of players in a game, across both teams. For q = ∞, this is the farthest value from the mean.
+    Calculate the q-uniformity of players in a game, across both teams. For q = ∞, this is the farthest player from the mean.
     :param game_players: The set of players in the game (Z).
     :param q_norm: The q-norm used for uniformity calculation (q).
     :return: The calculated q-uniformity of the players (v_q(Z)).

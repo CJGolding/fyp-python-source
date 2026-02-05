@@ -2,6 +2,7 @@ import streamlit as st
 
 from backend import UnrestrictedGameManager, TimeSensitiveGameManager
 from common.types import RecordedParameters
+from frontend.components._helpers import render_button
 from frontend.state import reset_animation, set_state, StateKeys, get_state
 
 
@@ -14,16 +15,16 @@ def render() -> None:
 
     with col1:
         team_size: int = st.number_input("Team Size (k)", 1, 5, 2)
-        p_norm: float = st.number_input("Fairness Norm (p)", 1.0, 3.0, 1.0, 1.0)
+        q_norm: float = st.number_input("Uniformity Norm (q)", 1.0, None, 1.0, 1.0)
         matchmaking_approach: str = st.selectbox("Matchmaking Approach", ["Exact", "Approximate"])
         approximate_matchmaking: bool = matchmaking_approach == "Approximate"
     with col2:
-        q_norm: float = st.number_input("Uniformity Norm (q)", 1.0, None, 1.0, 1.0)
-        fairness_weight: float = st.number_input("Fairness Weight (α)", 0.1, 2.0, 0.1, 0.1)
+        p_norm: float = st.number_input("Fairness Norm (p)", 1.0, 3.0, 1.0, 1.0)
+        fairness_weight: float = st.number_input("Fairness Weight (α)", 0.1, None, 0.1, 0.1)
         if is_time_sensitive:
             queue_weight: float = st.number_input("Queue Weight (β)", 0.1, 1.0, 0.1, 0.1)
 
-    if st.button("Initialise", type="primary", width='stretch'):
+    if render_button("Initialise", button_type="primary"):
         set_state(StateKeys.IS_TIME_SENSITIVE, is_time_sensitive)
         if is_time_sensitive:
             set_state(StateKeys.GAME_MANAGER,

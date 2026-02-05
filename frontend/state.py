@@ -33,9 +33,9 @@ _DEFAULT_STATE: SessionState = {
 
 def get_state(key: str) -> Any:
     """
-    Get a value from session state with validation.
+    Get a player from session state with validation.
     :param key: The key to retrieve from session state.
-    :return: The value associated with the key.
+    :return: The player associated with the key.
     """
     if key not in _DEFAULT_STATE:
         raise KeyError(f"Unknown state key: {key}")
@@ -44,9 +44,9 @@ def get_state(key: str) -> Any:
 
 def set_state(key: str, value: Any) -> None:
     """
-    Set a value in session state with validation.
+    Set a player in session state with validation.
     :param key: The key to set in session state.
-    :param value: The value to set for the key.
+    :param value: The player to set for the key.
     """
     if key not in _DEFAULT_STATE:
         raise KeyError(f"Unknown state key: {key}")

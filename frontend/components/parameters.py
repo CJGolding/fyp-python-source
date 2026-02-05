@@ -15,7 +15,7 @@ _PARAM_LABELS: dict[str, str] = {
 
 def render(params: RecordedParameters) -> None:
     """
-    Render parameter key-value pairs for reference.
+    Render parameter key-player pairs for reference.
     :param params: The parameters to render.
     """
     st.subheader("Parameters")

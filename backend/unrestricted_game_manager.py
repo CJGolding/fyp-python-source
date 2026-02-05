@@ -6,13 +6,12 @@ from itertools import combinations, count
 from threading import Thread
 from typing import Optional
 
-from sortedcontainers import SortedSet
-
 from backend._clock import reset as reset_clock
 from backend.candidate_game import CandidateGame
 from backend.min_heap import MinHeap
 from backend.player import Player
 from backend.recorder import Recorder
+from backend.sorted_set import SortedSet
 from common.actions import QueueActions, HeapActions
 from common.functions import p_fairness
 from common.types import (Number, RecordedParameters, LambdaFunction, AsynchronousFunction, CreatedMatch,
@@ -48,7 +47,7 @@ class UnrestrictedGameManager:
         self.candidate_games: MinHeap = MinHeap()
         self.created_matches: list[CreatedMatch] = []
         self._current_player_id: count[int] = count()
-        self._game_key_function: str = "imbalance"
+        self._match_quality_metric: str = "imbalance"
         self._partition_solver: PartitionFunction = self._greedy_balanced_partition if approximate else self._brute_force_partition
         self.recorder: Optional[Recorder] = Recorder() if is_recording else None
         self._current_thread: Optional[Thread] = None
@@ -72,7 +71,7 @@ class UnrestrictedGameManager:
     def validate_config(value: Number, criteria: LambdaFunction, name: str, requirements: str) -> Number:
         """Validate configuration parameters based on provided criteria as a lambda function."""
         if not criteria(value):
-            raise ValueError(f"Invalid value for {name}: {value}. Must be {requirements}.")
+            raise ValueError(f"Invalid player for {name}: {value}. Must be {requirements}.")
         return value
 
     def _record(self, **kwargs) -> None:
@@ -128,14 +127,14 @@ class UnrestrictedGameManager:
                 LOG.warning(
                     f"Timeout reached, prematurely ending search for best game for Player {player.id}.")
                 break
+            if min_game_val == 0:
+                LOG.info(f"Perfect game found for Player {player.id} with imbalance 0, breaking early.")
+                break
             game, curr_game_val, num_enumerations = self._partition_solver(player, set(remaining_players))
             total_num_enumerations += num_enumerations
             if curr_game_val < min_game_val:
                 min_game_val = curr_game_val
                 best_game = game
-            if min_game_val == 0:
-                LOG.info(f"Perfect game found for Player {player.id} with imbalance 0, breaking early.")
-                return best_game
 
         LOG.info(f"Checked {total_num_enumerations} candidate games for Player {player.id}.")
 
@@ -147,7 +146,7 @@ class UnrestrictedGameManager:
         Time Complexity: 2^O(k) where k is the team size.
         :param anchor_player: The anchor Player instance to include in the candidate game (p_i).
         :param remaining_players: Set of remaining Player instances to partition into teams.
-        :return: A tuple containing the CandidateGame instance (X_i, Y_i), its imbalance (f) or priority (g) value, and the number of enumerations.
+        :return: A tuple containing the CandidateGame instance (X_i, Y_i), its imbalance (f) or priority (g) player, and the number of enumerations.
         """
         best_game: Optional[CandidateGame] = None
         min_game_val: float = float('inf')
@@ -158,7 +157,7 @@ class UnrestrictedGameManager:
             team_x_players: set[Player] = set(team_x_others) | {anchor_player}
             team_y_players: set[Player] = remaining_players - team_x_players
             game: CandidateGame = self._create_candidate_game(anchor_player, team_x_players, team_y_players)
-            curr_game_val: float = getattr(game, self._game_key_function)
+            curr_game_val: float = getattr(game, self._match_quality_metric)
             if curr_game_val < min_game_val:
                 min_game_val = curr_game_val
                 best_game = game
@@ -172,7 +171,7 @@ class UnrestrictedGameManager:
         Time Complexity: O(k log k) where k is the team size.
         :param anchor_player: The anchor Player instance to include in the candidate game (p_i).
         :param remaining_players: Set of remaining Player instances to partition into teams.
-        :return: A tuple containing the CandidateGame instance (X_i, Y_i), its imbalance (f) or priority (g) value, and the number of enumerations (1).
+        :return: A tuple containing the CandidateGame instance (X_i, Y_i), its imbalance (f) or priority (g) player, and the number of enumerations (1).
         """
         game_players: SortedSet = SortedSet({anchor_player} | remaining_players)
         sorted_game_players: list[Player] = sorted(game_players, reverse=True)
@@ -192,7 +191,7 @@ class UnrestrictedGameManager:
                 team_y.add(player)
 
         game: CandidateGame = self._create_candidate_game(anchor_player, team_x, team_y)
-        return game, getattr(game, self._game_key_function), 1
+        return game, getattr(game, self._match_quality_metric), 1
 
     def _insert_player(self, player: Player, bulk: bool = False) -> AffectedPlayers:
         """
@@ -214,7 +213,7 @@ class UnrestrictedGameManager:
                              team_x={self.players.index(p) for p in best_game.team_x},
                              team_y={self.players.index(p) for p in best_game.team_y})
                 self.candidate_games.push(best_game)
-                self._record(preserve_queue=True, target_game=self.candidate_games.index_map[player.id],
+                self._record(preserve_queue=True, target_game=self.candidate_games.index(player.id),
                              heap_action=HeapActions.INSERT)
             else:
                 self._record(queue_action=QueueActions.GAME_NOT_FOUND)
@@ -247,8 +246,8 @@ class UnrestrictedGameManager:
         self.players.remove(player)
 
         if not bulk:
-            if player.id in self.candidate_games.index_map:
-                self._record(target_game=self.candidate_games.index_map[player.id], heap_action=HeapActions.REMOVE)
+            if player.id in self.candidate_games:
+                self._record(target_game=self.candidate_games.index(player.id), heap_action=HeapActions.REMOVE)
                 self.candidate_games.remove(player.id)
             else:
                 self._record()
@@ -279,11 +278,11 @@ class UnrestrictedGameManager:
                              team_y=[self.players.index(p) for p in best_game.team_y]
                              )
                 self.candidate_games.push(best_game)
-                self._record(target_game=self.candidate_games.index_map[player.id], heap_action=HeapActions.INSERT)
+                self._record(target_game=self.candidate_games.index(player.id), heap_action=HeapActions.INSERT)
             else:
-                if player.id in self.candidate_games.index_map:
+                if player.id in self.candidate_games:
                     self._record(queue_action=QueueActions.GAME_NOT_FOUND,
-                                 target_game=self.candidate_games.index_map[player.id],
+                                 target_game=self.candidate_games.index(player.id),
                                  heap_action=HeapActions.REMOVE
                                  )
                     self.candidate_games.remove(player.id)
@@ -304,7 +303,7 @@ class UnrestrictedGameManager:
         game: CandidateGame = self._query_best_game()
         if game is None:
             self._record(queue_action=QueueActions.GAME_NOT_FOUND)
-            LOG.info(f"No valid candidate games available to create a match.")
+            LOG.warning("No valid candidate games available to create a match.")
             self._record()
             return
 

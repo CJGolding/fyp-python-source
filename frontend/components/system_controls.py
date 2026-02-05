@@ -1,6 +1,7 @@
 import streamlit as st
 
 from common.types import GameManager
+from frontend.components._helpers import render_button
 from frontend.state import reset_all, start_playback, stop_execution
 
 
@@ -14,14 +15,14 @@ def render(game_manager: GameManager, controls_disabled: bool, has_stopped: bool
     st.header("System Controls")
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("Stop", width='stretch', disabled=has_stopped or game_manager.is_executing_async):
+        if render_button("Stop", has_stopped or game_manager.is_executing_async):
             stop_execution()
             st.rerun()
     with col2:
-        if st.button("Reset", width='stretch'):
+        if render_button("Reset"):
             reset_all()
             st.rerun()
-    if st.button("Create Match", type="primary", width='stretch', disabled=controls_disabled or has_stopped):
+    if render_button("Create Match", controls_disabled or has_stopped, "primary"):
         game_manager.create_match_async()
         start_playback()
         st.rerun()

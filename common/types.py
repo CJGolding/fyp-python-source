@@ -1,7 +1,7 @@
 """Common type definitions used across the project."""
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, Optional, TypedDict
+from typing import TYPE_CHECKING, Callable, Optional, TypedDict, Literal
 
 if TYPE_CHECKING:
     from backend.player import Player as _Player
@@ -13,10 +13,14 @@ if TYPE_CHECKING:
         QueueSnapshot as _QueueSnapshot
     )
     from backend.min_heap import MinHeap as _MinHeap
+    from backend.sorted_set import SortedSet as _SortedSet
     from backend.unrestricted_game_manager import UnrestrictedGameManager as _UnrestrictedGameManager
     from backend.time_sensitive_game_manager import TimeSensitiveGameManager as _TimeSensitiveGameManager
     from common.colours import Colours as _Colours
-    from common.actions import QueueActions as _QueueActions, HeapActions as _HeapActions
+    from common.actions import (
+        QueueActions as _QueueActions,
+        HeapActions as _HeapActions
+    )
 
 # Primitive types
 type Number = int | float
@@ -26,6 +30,7 @@ type Player = _Player
 type CandidateGame = _CandidateGame
 type CreatedMatch = _CandidateGame
 type MinHeap = _MinHeap
+type SortedSet = _SortedSet
 type GameManager = _UnrestrictedGameManager | _TimeSensitiveGameManager
 type Step = _Step
 type HeapSnapshot = _HeapSnapshot
@@ -60,6 +65,7 @@ type NodeColours = tuple[_Colours, _Colours]
 type InsertionInputField = tuple[str, int, int, int]
 type StepLabelAction = _QueueActions | _HeapActions
 type StepLabelValue = tuple[str, str]
+type ButtonType = Literal['primary', 'secondary', 'tertiary']
 
 
 class SessionState(TypedDict):

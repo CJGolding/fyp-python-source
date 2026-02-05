@@ -26,7 +26,7 @@ lint:
 
 .PHONY: test
 test:
-	. .venv/bin/activate && coverage run --omit '.venv/*' -m pytest -o junit_suite_name=$(folder_name) --junitxml=./test-results/test-results.xml -v tests/ && coverage report -m
+	. .venv/bin/activate && coverage run --omit '.venv/*' -m pytest -o junit_suite_name=$(folder_name) -v tests/ && coverage report -m
 
 .PHONY: run-cli
 run-cli:

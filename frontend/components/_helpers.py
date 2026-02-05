@@ -2,7 +2,18 @@ import streamlit as st
 from graphviz import Digraph
 
 from common import Colours
-from common.types import LegendItem
+from common.types import LegendItem, ButtonType
+
+
+def render_button(label: str, controls_disabled: bool = False, button_type: ButtonType = "secondary") -> bool:
+    """
+    Render a button with consistent styling and disabled state based on varying conditions.
+    :param label: The label for the button.
+    :param controls_disabled: Whether the button should be disabled.
+    :param button_type: The type of the button (e.g. 'primary', 'secondary').
+    :return: True if the button was clicked, False otherwise.
+    """
+    return st.button(label, disabled=controls_disabled, width='stretch', type=button_type)
 
 
 def render_empty_graph(name: str, shape: str) -> None:

@@ -32,7 +32,7 @@ def _create_team_nodes(index: int, graph: Digraph, team: list[dict[str, Number]]
 
 def _render_match_graph(index: int, match: dict, is_time_sensitive: bool) -> Digraph:
     """
-    Render a single match as a graphviz graph with two teams and metric value and anchor_player_id as a divider.
+    Render a single match as a graphviz graph with two teams and metric player and anchor_player_id as a divider.
     :param index: The match index.
     :param match: The match data dictionary.
     :param is_time_sensitive: Whether to include time-sensitive information in the node labels.
@@ -42,7 +42,7 @@ def _render_match_graph(index: int, match: dict, is_time_sensitive: bool) -> Dig
     team_y: list[dict[str, Number]] = match.get("team_y")
     anchor_player_id: int = match.get('anchor_player_id')
 
-    # Determine metric key and value
+    # Determine metric key and player
     metric_key: str = "g" if is_time_sensitive else "f"
     metric_val: float = match.get("priority") or match.get("imbalance", 0)
 

@@ -44,6 +44,10 @@ class Player:
         """Less-than comparison based on skill level, then by ID for consistent tie-breaking."""
         return (self.skill, self.id) < (other.skill, other.id)
 
+    def __gt__(self, other: "Player") -> bool:
+        """Greater-than comparison based on skill level, then by ID for consistent tie-breaking."""
+        return (self.skill, self.id) > (other.skill, other.id)
+
     def __hash__(self) -> int:
         """Hash based on player ID for use in sets and dictionaries."""
         return hash(self.id)

@@ -1,10 +1,9 @@
 from typing import Optional
 
-from sortedcontainers import SortedSet
-
 from backend.snapshots import QueueSnapshot, HeapSnapshot, BaseSnapshot
 from common.actions import QueueActions, HeapActions
-from common.types import RecordedStep, RecordedWindow, Player, RecordedTeam, RecordedGame, MinHeap, CreatedMatch
+from common.types import (RecordedStep, RecordedWindow, Player, RecordedTeam, RecordedGame, MinHeap, CreatedMatch,
+                          SortedSet)
 
 
 class Step:
